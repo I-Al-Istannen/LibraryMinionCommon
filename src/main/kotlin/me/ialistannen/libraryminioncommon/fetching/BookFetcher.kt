@@ -13,7 +13,7 @@ interface BookFetcher {
      *
      * @param isbn the isbn to fetch them for
      *
-     * @return the fetched book information
+     * @return the fetched book information, if any
      */
-    fun fetchInformation(isbn: Isbn): BookInformation
+    fun fetchInformation(isbn: Isbn): BookInformation?
 }
