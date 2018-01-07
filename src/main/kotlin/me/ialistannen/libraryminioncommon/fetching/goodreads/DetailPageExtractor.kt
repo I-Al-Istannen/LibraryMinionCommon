@@ -24,6 +24,7 @@ object DetailPageExtractor {
                     publisher = extractPublisher(detailPage),
                     coverType = extractCoverType(detailPage),
                     coverImageUrl = extractCoverImageUrl(detailPage),
+                    genre = extractGenre(detailPage),
                     author = extractAuthors(detailPage)
             )
         } catch (e: Exception) {
@@ -117,6 +118,13 @@ object DetailPageExtractor {
 
     private fun extractCoverImageUrl(detailPage: Document): String? {
         return detailPage.getElementById("coverImage")?.absUrl("src")
+    }
+
+    private fun extractGenre(detailPage: Document): List<String> {
+        return detailPage.getElementsByClass("bookPageGenreLink")
+                .filter { it.hasAttr("href") }
+                .filter { it.attr("href").startsWith("/genres/") }
+                .map { it.text() }
     }
 
     private fun Document.getItemPropString(key: String): String? {

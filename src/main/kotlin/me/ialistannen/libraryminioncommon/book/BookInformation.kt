@@ -17,5 +17,6 @@ data class BookInformation(
         val publisher: String? = null,
         val coverType: String? = null,
         val coverImageUrl: String? = null,
+        val genre: List<String> = emptyList(),
         val extra: Map<String, String> = emptyMap()
 )
