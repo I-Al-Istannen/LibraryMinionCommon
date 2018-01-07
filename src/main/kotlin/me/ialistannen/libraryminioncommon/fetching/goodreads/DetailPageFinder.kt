@@ -21,11 +21,17 @@ internal object DetailPageFinder {
     fun findDetailPage(isbn: Isbn): Document? {
         val url = BASE_URL.format(isbn.stringForm)
 
-        return try {
-            WebsiteFetcher.fetchPage(url)
+        try {
+            val document = WebsiteFetcher.fetchPage(url)
+
+            // no search result found
+            if (document.baseUri().contains(".com/search/")) {
+                return null
+            }
+            return document
         } catch (e: IOException) {
             e.printStackTrace()
-            null
+            return null
         }
     }
 }
