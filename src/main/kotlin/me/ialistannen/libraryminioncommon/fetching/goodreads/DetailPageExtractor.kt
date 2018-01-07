@@ -6,7 +6,7 @@ import me.ialistannen.libraryminioncommon.isbn.IsbnParser
 import org.jsoup.nodes.Document
 
 /**
- * Extracts data about the book from the detail page.
+ * Extracts [BookInformation] from the good reads detail page.
  */
 object DetailPageExtractor {
 
