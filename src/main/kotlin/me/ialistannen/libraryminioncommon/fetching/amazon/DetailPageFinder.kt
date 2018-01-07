@@ -22,7 +22,7 @@ internal object DetailPageFinder {
     }
 
     private fun fetchSearchPage(isbn: Isbn): Document {
-        val url = BASE_URL.format(isbn.toString())
+        val url = BASE_URL.format(isbn.stringForm)
 
         return WebsiteFetcher.fetchPage(url)
     }
