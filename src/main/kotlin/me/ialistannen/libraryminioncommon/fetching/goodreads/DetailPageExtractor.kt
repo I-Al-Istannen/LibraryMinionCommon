@@ -23,6 +23,7 @@ object DetailPageExtractor {
                     language = extractLanguage(detailPage),
                     publisher = extractPublisher(detailPage),
                     coverType = extractCoverType(detailPage),
+                    coverImageUrl = extractCoverImageUrl(detailPage),
                     author = extractAuthors(detailPage)
             )
         } catch (e: Exception) {
@@ -112,6 +113,10 @@ object DetailPageExtractor {
         }
 
         return result
+    }
+
+    private fun extractCoverImageUrl(detailPage: Document): String? {
+        return detailPage.getElementById("coverImage")?.absUrl("src")
     }
 
     private fun Document.getItemPropString(key: String): String? {

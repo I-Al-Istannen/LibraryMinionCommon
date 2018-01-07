@@ -16,5 +16,6 @@ data class BookInformation(
         val language: String? = null,
         val publisher: String? = null,
         val coverType: String? = null,
+        val coverImageUrl: String? = null,
         val extra: Map<String, String> = emptyMap()
 )
