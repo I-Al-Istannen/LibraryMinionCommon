@@ -4,6 +4,7 @@ import me.ialistannen.libraryminioncommon.book.BookInformation
 import me.ialistannen.libraryminioncommon.isbn.Isbn
 import me.ialistannen.libraryminioncommon.isbn.IsbnParser
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 
 /**
  * Extracts [BookInformation] from an amazon detail page.
@@ -13,6 +14,7 @@ object DetailPageExtractor {
     private val PUBLISHER_EXTRACTION_REGEX = Regex("\\s*(.+)\\s*\\(")
     private val RATING_EXTRACTION_REGEX = Regex("(\\d\\.\\d)\\s*von.+Stern.+")
     private val URL_EXTRACTION_REGEX = Regex("\"(https://.+?)\"")
+    private val PAGE_EXTRACTION_REGEX = Regex("(\\d+).+Seiten")
 
     fun extractFromDetailPage(detailPage: Document): BookInformation? {
         return try {
@@ -55,7 +57,11 @@ object DetailPageExtractor {
             = null
 
     private fun extractDescription(detailPage: Document): String? {
-        return null
+        val descriptionContainer = detailPage
+                .getElementsByAttributeValue("data-feature-name", "bookDescription")
+                .firstOrNull() ?: return null
+
+        return descriptionContainer.getElementsByTag("noscript")?.text()
     }
 
     private fun extractIsbn(detailPage: Document): Isbn {
@@ -69,9 +75,18 @@ object DetailPageExtractor {
             detailPage.getContentInformationWithKey("Sprache:")
 
     private fun extractPageCount(detailPage: Document): Int? {
-        return detailPage.getContentInformationWithKey("Seiten")
-                ?.split(" ")
-                ?.firstOrNull()
+        return detailPage.applyToContentInformation {
+            mapNotNull {
+                it.nextSibling()
+            }
+                    .mapNotNull {
+                        PAGE_EXTRACTION_REGEX.find(it.toString())
+                    }
+                    .mapNotNull {
+                        it.groups[1]?.value
+                    }
+        }
+                .firstOrNull()
                 ?.toIntOrNull()
     }
 
@@ -101,15 +116,20 @@ object DetailPageExtractor {
             detailPage.getElementById("productTitle").text()
 
     private fun Document.getContentInformationWithKey(key: String): String? {
+        return applyToContentInformation {
+            filter { it.text().trim() == key }
+                    .map { it.nextSibling().toString().trim() }
+        }.firstOrNull()
+    }
+
+    private fun <R> Document.applyToContentInformation(function: (List<Element>).() -> List<R>): List<R> {
         val elements = getElementById("detail_bullets_id")
-                ?.getElementsByTag("li") ?: return null
+                ?.getElementsByTag("li") ?: return emptyList()
 
         // Layout: "<b>Key</b>Value"
-        return elements
+        val list = elements
                 .filter { it.children().size == 1 }
                 .map { it.child(0) }
-                .filter { it.text().trim() == key }
-                .map { it.nextSibling().toString().trim() }
-                .firstOrNull()
+        return function.invoke(list)
     }
 }
